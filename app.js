@@ -14,7 +14,7 @@ const flash = require('connect-flash');
 const mongo = require('mongodb');
 const mongoose = require('mongoose');
 const db = mongoose.connection;
-
+const bcrypt = require('bcryptjs');
 
 const index = require('./routes/index');
 const users = require('./routes/users');
@@ -50,9 +50,9 @@ app.use(passport.session());
 //Validator
 app.use(expressValidator({
     errorFormatter: function (param,msg,value) {
-        var namespace = param.split(".")
-            ,root = namespace.shift()
-            ,formParam = root;
+        let namespace = param.split("."),
+            root = namespace.shift(),
+            formParam = root;
         while (namespace.length){
           formParam += '[' + namespace.shift() + ']';
         }
@@ -64,7 +64,7 @@ app.use(expressValidator({
         }
     }
 }));
-
+app.use(flash());
 app.use(function (req,res,next) {
    res.locals.messages = require('express-messages')(req,res);
    next();
@@ -76,7 +76,7 @@ app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -91,5 +91,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;
