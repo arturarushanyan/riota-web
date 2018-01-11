@@ -20,9 +20,11 @@
     "mongoose": "*",
     "morgan": "~1.9.0",
     "multer": "*",
+    "nodemailer": "^4.4.1",
     "passport": "*",
     "passport-http": "*",
     "passport-local": "*",
-    "serve-favicon": "~2.4.5"
+    "serve-favicon": "~2.4.5",
+    "xoauth2": "^1.2.0"
   }
 }

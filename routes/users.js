@@ -5,6 +5,29 @@ const upload = multer({dest: './uploads'});
 const User = require('../models/user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const nodemailer = require('nodemailer');
+const xoauth2 = require('xoauth2');
+
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    secure: false,
+    port: 25,
+    // auth: {
+    //     xoauth2: xoauth2.createXOAuth2Generator({
+    //         user: 'riotatest@gmail.com',
+    //         clientId: '601974907439-ht9pq3iu08rqfejoq70u6ilhcisg0osd.apps.googleusercontent.com',
+    //         clientSecret: 'ey3FUmLx6pkZLAtTMqh4zXOS',
+    //         refreshToken: '1/-2u8KM8VuWl90h8WDngpUrCaFZxTvpHw6J4DCotmXhY'
+    //     })
+    // }
+    auth: {
+        user: 'riotatest@gmail.com',
+        pass: 'Riot$123'
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -105,6 +128,22 @@ router.post('/register', upload.single('profileimage'), function(req, res, next)
         });
 
         req.flash('success','Youre now registered and can login');
+        //mail options for sending mail
+        let mailOptions = {
+            from: 'riotatest@gmail.com',
+            to: 'arthur.arushanyan92@gmail.com',
+            subject: 'Nodemailer test',
+            text: 'Hello World!!'
+        };
+
+        //send email
+        transporter.sendMail(mailOptions, function (err, res) {
+            if(err){
+                console.log('Error', err);
+            } else {
+                console.log('Email Sent');
+            }
+        });
 
         res.location('/');
         res.redirect('/');
