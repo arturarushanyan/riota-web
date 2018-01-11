@@ -45,7 +45,7 @@ router.get('/login', function(req, res, next) {
 router.post('/login',
     passport.authenticate('local', {failureRedirect: '/users/login', failureFlash: 'invalid usr or pass'}),
     function(req, res) {
-        req.flash('success', 'Loggedin')
+        req.flash('success', 'Loggedin');
         res.redirect('/');
 });
 
@@ -131,7 +131,7 @@ router.post('/register', upload.single('profileimage'), function(req, res, next)
         //mail options for sending mail
         let mailOptions = {
             from: 'riotatest@gmail.com',
-            to: 'arthur.arushanyan92@gmail.com',
+            to: email,
             subject: 'Nodemailer test',
             text: 'Hello World!!'
         };
