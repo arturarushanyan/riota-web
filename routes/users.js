@@ -37,9 +37,14 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function (username, password, done) {
+    console.log('using local strategy')
     User.getUserByUsername(username, function (err,user) {
-        if(err) throw err;
+        if(err) {
+            console.log('some error accured')
+            return done(err)
+        }
         if(!user){
+            console.log("!user case here");
             return done(null, false, {message: 'Unknown User'})
         }
         User.comparePassword(password, user.password, function (err, isMatch) {
@@ -107,5 +112,11 @@ router.post('/register', upload.single('profileimage'), function(req, res, next)
     }
     console.log('request data',req.body);
     console.log('request file', req.file);
+});
+
+router.get('/logout', function (req, res) {
+    req.logOut();
+    req.flash('success', 'You are now logged out');
+    res.redirect('/users/login');
 });
 module.exports = router;
