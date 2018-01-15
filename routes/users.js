@@ -7,6 +7,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const nodemailer = require('nodemailer');
 const xoauth2 = require('xoauth2');
+const uuIdToken = require('uuid-token-generator');
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -42,6 +43,7 @@ router.get('/login', function(req, res, next) {
     res.render('login',{title: 'Login'});
 });
 
+//
 router.post('/login',
     passport.authenticate('local', {failureRedirect: '/users/login', failureFlash: 'invalid usr or pass'}),
     function(req, res) {
@@ -60,10 +62,10 @@ passport.deserializeUser(function(id, done) {
 });
 
 passport.use(new LocalStrategy(function (username, password, done) {
-    console.log('using local strategy')
+    console.log('using local strategy');
     User.getUserByUsername(username, function (err,user) {
         if(err) {
-            console.log('some error accured')
+            console.log('some error accured');
             return done(err)
         }
         if(!user){
@@ -81,13 +83,18 @@ passport.use(new LocalStrategy(function (username, password, done) {
     })
 }));
 
+//REGISTRATION
 router.post('/register', upload.single('profileimage'), function(req, res, next) {
     let name = req.body.name,
         userName = req.body.username,
         email = req.body.email,
         password = req.body.password,
         password2 = req.body.password2,
-        profileImage = 'noimage.jpg';
+        profileImage = 'noimage.jpg',
+        secretToken = new uuIdToken(256, uuIdToken.BASE62).generate();
+        console.log('verify token is ',secretToken);
+        console.log('request protocol is ',req.protocol);
+        console.log('request host is',req.get('host'));
 
     if(req.file){
         console.log("file uploading...");
@@ -117,6 +124,8 @@ router.post('/register', upload.single('profileimage'), function(req, res, next)
             email: email,
             username: userName,
             password: password,
+            secretToken: secretToken,
+            isVerified: false,
             profileImage: profileImage
         });
         User.createUser(newUser, function (error, user) {
@@ -128,12 +137,14 @@ router.post('/register', upload.single('profileimage'), function(req, res, next)
         });
 
         req.flash('success','Youre now registered and can login');
+
         //mail options for sending mail
         let mailOptions = {
             from: 'riotatest@gmail.com',
             to: email,
-            subject: 'Nodemailer test',
-            text: 'Hello World!!'
+            subject: 'Welcome to Riota!',
+            text: 'Congrats',
+            html: '<p>Click <a href="' + req.protocol+ '://'+ req.get('host') + '/users/verify/' + secretToken + '">here</a> to verify your account</p>'
         };
 
         //send email
@@ -157,5 +168,27 @@ router.get('/logout', function (req, res) {
     req.logOut();
     req.flash('success', 'You are now logged out');
     res.redirect('/users/login');
+});
+
+router.get('/verify/:secretToken', function (req, res) {
+    // let verifyUser = User.getUserBySecretToken(req.params.secretToken, (err) => {
+    //     if(err){
+    //         throw err;
+    //     } else {
+    //         console.log('User Finded')
+    //     }
+    // });
+
+    User.findOneAndUpdate({secretToken:req.params.secretToken}, {isVerified: true}, (err,user) => {
+        if(err){
+            throw err;
+        }
+        if(!user){
+            req.flash('error', 'no user')
+        }
+    });
+    //console.log('vser to be verified', user);
+    req.flash('success', 'Your email successfully verified');
+    res.render('verify');
 });
 module.exports = router;

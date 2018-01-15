@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-mongoose.connect('mongodb://localhost/nodeauth');
+//mongoose.connect('mongodb://localhost/nodeauth');
+mongoose.connect('mongodb://riota:Riot$123@ds251737.mlab.com:51737/riotadb');
 
 let db = mongoose.connection;
 
@@ -22,6 +23,12 @@ let UserSchema = mongoose.Schema({
     },
     profileImage: {
         type: String
+    },
+    secretToken: {
+        type: String
+    },
+    isVerified: {
+        type: Boolean
     }
 });
 
@@ -33,6 +40,11 @@ module.exports.getUserById = function (id, callback) {
 
 module.exports.getUserByUsername = function (username, callback) {
     let query = {username : username};
+    User.findOne(query, callback);
+};
+
+module.exports.getUserBySecretToken = function (secretToken, callback) {
+    let query = {secretToken : secretToken};
     User.findOne(query, callback);
 };
 
