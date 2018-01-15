@@ -20,7 +20,7 @@ const index = require('./routes/index');
 const users = require('./routes/users');
 
 const app = express();
-
+const port = process.env.PORT || 3000;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -97,7 +97,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(3000, function (err) {
+app.listen(port, function (err) {
     if (err){
         console.log(err);
     } else {
