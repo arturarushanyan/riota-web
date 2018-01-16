@@ -12,7 +12,7 @@ const uuIdToken = require('uuid-token-generator');
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     secure: false,
-    port: 25,
+    port: 587,
     // auth: {
     //     xoauth2: xoauth2.createXOAuth2Generator({
     //         user: 'riotatest@gmail.com',
